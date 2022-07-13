@@ -1,4 +1,4 @@
-use crate::pb::abi::{value, CommandResponse, Kvpair, Value};
+use abi::*;
 use crate::KvError;
 use http::StatusCode;
 
