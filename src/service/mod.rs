@@ -1,4 +1,4 @@
-pub mod command_service;
+pub mod command;
 
 use crate::pb::abi::CommandResponse;
 use crate::storage::Storage;
