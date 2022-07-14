@@ -1,10 +1,13 @@
+extern crate core;
+
 mod error;
 mod pb;
 mod service;
 mod storage;
 
 pub use error::KvError;
-use crate::pb::abi::{Value, value};
+use crate::pb::abi::{CommandRequest, Hget, Value, value};
+use crate::service::Service;
 use crate::storage::memory::MemTable;
 use crate::storage::Storage;
 
@@ -13,20 +16,22 @@ fn main() {
 }
 
 
-fn test() {
-    let table = "table";
-    let mem = MemTable::new();
-    mem.set(table,"key".to_string(), Value {
-        value: Some(value::Value::String("value".to_string()))
-    });
-
-    match mem.get(table, "key") {
-        Ok(Some(v)) => {
-            match v.value {
-                Some(value::Value::String(x)) => println!("{}", x) ,
-                _ => println!("none") ,
-            }
-        },
-        _ => {}
-    }
-}
+// fn test() {
+//     let service = Service::new(MemTable::default());
+//     service.execute(CommandRequest::new_hset("table".to_string(), "key".to_string(), Value {
+//         value: Some(value::Value::String("values".to_string()))
+//     }));
+//
+//     let res = service.execute(CommandRequest::new_hget("table".to_string(), "key".to_string()));
+//     for x in res.values.iter() {
+//         match &x.value {
+//             Some(value::Value::String(v)) => println!("{}", v),
+//             _ => {}
+//         }
+//     }
+//
+//     match &(res.values[0].value) {
+//         Some(value::Value::String(v)) => println!("{}", v),
+//         _ => {}
+//     }
+// }
