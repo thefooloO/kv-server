@@ -1,8 +1,9 @@
 use dashmap::DashMap;
+use dashmap::mapref::multiple::RefMulti;
 use dashmap::mapref::one::Ref;
 use crate::KvError;
 use crate::pb::abi::Kvpair;
-use crate::pb::abi::value::Value;
+use crate::pb::abi::Value;
 use crate::storage::Storage;
 
 #[derive(Clone, Debug, Default)]
@@ -11,6 +12,7 @@ pub struct MemTable {
 }
 
 impl MemTable {
+
     pub fn new() -> Self {
         Self::default()
     }
@@ -24,28 +26,34 @@ impl MemTable {
             }
         }
     }
+
 }
 
 impl Storage for MemTable {
 
-    fn get(&self, table: &str, key: &str) -> Result<Option<crate::pb::abi::Value>, KvError> {
-        todo!()
+    fn get(&self, table: &str, key: &str) -> Result<Option<Value>, KvError> {
+        let table = self.get_or_create_table(table);
+        Ok(table.get(key).map(|v| v.value().clone()))
     }
 
-    fn set(&self, table: &str, key: String, value: crate::pb::abi::Value) -> Result<Option<crate::pb::abi::Value>, KvError> {
-        todo!()
+    fn set(&self, table: &str, key: String, value: Value) -> Result<Option<Value>, KvError> {
+        let table = self.get_or_create_table(table);
+        Ok(table.insert(key, value))
     }
 
-    fn del(&self, table: &str, key: &str) -> Result<Option<crate::pb::abi::Value>, KvError> {
-        todo!()
+    fn del(&self, table: &str, key: &str) -> Result<Option<Value>, KvError> {
+        let table = self.get_or_create_table(table);
+        Ok(table.remove(key).map(|(_k,v)| v))
     }
 
     fn contains(&self, table: &str, key: &str) -> Result<bool, KvError> {
-        todo!()
+        let table = self.get_or_create_table(table);
+        Ok(table.contains_key(key))
     }
 
     fn get_all(&self, table: &str) -> Result<Vec<Kvpair>, KvError> {
-        todo!()
+        let table = self.get_or_create_table(table);
+        Ok(table.iter().map(|v:RefMulti<String,crate::pb::abi::Value>| Kvpair::new(v.key(), v.value().clone())).collect())
     }
 
     fn get_iter(&self, table: &str) -> Result<Box<dyn Iterator<Item=Kvpair>>, KvError> {
