@@ -1,9 +1,10 @@
+pub mod abi;
+
 use abi::*;
 use crate::KvError;
 use http::StatusCode;
 use command_request::RequestData;
 
-pub mod abi;
 
 impl From<String> for Value {
     fn from(s: String) -> Self {
