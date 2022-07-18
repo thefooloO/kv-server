@@ -17,8 +17,6 @@ pub enum KvError {
     EncodeError(#[from] prost::EncodeError),
     #[error("Failed to decode protobuf message")]
     DecodeError(#[from] prost::DecodeError),
-    #[error("Failed to access sled db")]
-    SledError(#[from] sled::Error),
     #[error("I/O error")]
     IoError(#[from] std::io::Error),
 

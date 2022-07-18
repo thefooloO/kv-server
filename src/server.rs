@@ -11,8 +11,6 @@ use kv_server::service::{Service, ServiceInner};
 use kv_server::storage::memory::MemTable;
 use anyhow::Result;
 use tokio::net::TcpListener;
-use tracing::info;
-
 
 #[tokio::main]
 async fn main() -> Result<()> {

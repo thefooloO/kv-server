@@ -58,15 +58,15 @@ where
     }
 
     pub async fn execute(&mut self, cmd: CommandRequest) -> Result<CommandResponse, KvError> {
-        self.send(cmd).await;
+        self.send(cmd).await?;
         Ok(self.recv().await?)
     }
 
     async fn send(&mut self, msg: CommandRequest) -> Result<(), KvError> {
         let mut buf = BytesMut::new();
-        msg.encode_frame(&mut buf);
+        msg.encode_frame(&mut buf)?;
         let encoded = buf.freeze();
-        self.inner.write_all(&encoded[..]).await;
+        self.inner.write_all(&encoded[..]).await?;
         Ok(())
     }
 

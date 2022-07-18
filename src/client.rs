@@ -10,7 +10,6 @@ use crate::net::basic::ProstClientStream;
 use crate::pb::abi::CommandRequest;
 use anyhow::Result;
 use tokio::net::TcpStream;
-use tracing::info;
 
 #[tokio::main]
 async fn main() -> Result<()> {

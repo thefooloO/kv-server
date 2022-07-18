@@ -41,6 +41,6 @@ where
     buf.reserve(LEN + len);
     buf.put_u32(len as u32);
     unsafe { buf.advance_mut(len) };
-    stream.read_exact(&mut buf[LEN..]).await;
+    stream.read_exact(&mut buf[LEN..]).await?;
     Ok(())
 }
