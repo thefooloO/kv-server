@@ -1,18 +1,17 @@
-use dashmap::DashMap;
-use dashmap::mapref::multiple::RefMulti;
-use dashmap::mapref::one::Ref;
-use crate::KvError;
 use crate::pb::abi::Kvpair;
 use crate::pb::abi::Value;
 use crate::storage::{Storage, StorageIter};
+use crate::KvError;
+use dashmap::mapref::multiple::RefMulti;
+use dashmap::mapref::one::Ref;
+use dashmap::DashMap;
 
 #[derive(Clone, Debug, Default)]
 pub struct MemTable {
-    tables: DashMap<String, DashMap<String, Value>>
+    tables: DashMap<String, DashMap<String, Value>>,
 }
 
 impl MemTable {
-
     pub fn new() -> Self {
         Self::default()
     }
@@ -26,11 +25,9 @@ impl MemTable {
             }
         }
     }
-
 }
 
 impl Storage for MemTable {
-
     fn get(&self, table: &str, key: &str) -> Result<Option<Value>, KvError> {
         let table = self.get_or_create_table(table);
         Ok(table.get(key).map(|v| v.value().clone()))
@@ -43,7 +40,7 @@ impl Storage for MemTable {
 
     fn del(&self, table: &str, key: &str) -> Result<Option<Value>, KvError> {
         let table = self.get_or_create_table(table);
-        Ok(table.remove(key).map(|(_k,v)| v))
+        Ok(table.remove(key).map(|(_k, v)| v))
     }
 
     fn contains(&self, table: &str, key: &str) -> Result<bool, KvError> {
@@ -53,10 +50,13 @@ impl Storage for MemTable {
 
     fn get_all(&self, table: &str) -> Result<Vec<Kvpair>, KvError> {
         let table = self.get_or_create_table(table);
-        Ok(table.iter().map(|v:RefMulti<String,Value>| Kvpair::new(v.key(), v.value().clone())).collect())
+        Ok(table
+            .iter()
+            .map(|v: RefMulti<String, Value>| Kvpair::new(v.key(), v.value().clone()))
+            .collect())
     }
 
-    fn get_iter(&self, table: &str) -> Result<Box<dyn Iterator<Item=Kvpair>>, KvError> {
+    fn get_iter(&self, table: &str) -> Result<Box<dyn Iterator<Item = Kvpair>>, KvError> {
         let table = self.get_or_create_table(table).clone();
         let iter = StorageIter::new(table.into_iter());
         Ok(Box::new(iter))

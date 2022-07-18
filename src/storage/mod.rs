@@ -13,20 +13,19 @@ pub trait Storage {
 }
 
 pub struct StorageIter<T> {
-    data: T
+    data: T,
 }
 
 impl<T> StorageIter<T> {
     pub fn new(data: T) -> Self {
-        Self {
-            data
-        }
+        Self { data }
     }
 }
 
 impl<T> Iterator for StorageIter<T>
-    where T: Iterator,
-          T::Item: Into<Kvpair>
+where
+    T: Iterator,
+    T::Item: Into<Kvpair>,
 {
     type Item = Kvpair;
 
