@@ -1,15 +1,15 @@
 use std::sync::{Arc, mpsc, Mutex};
 use std::thread;
-use crate::thread_utils::Job;
+use crate::thread_utils::Task;
+use crate::thread_utils::Task::{ Job, Shutdown };
 
 const BOUND: usize = 10;
 
 #[derive(Clone)]
 pub struct Worker {
-    sender   : mpsc::SyncSender<Job>,
-    receiver : Arc<Mutex::<mpsc::Receiver<Job>>>,
+    sender   : mpsc::SyncSender<Task>,
+    receiver : Arc<Mutex::<mpsc::Receiver<Task>>>,
     workloads: usize,
-    shutdown : bool
 }
 
 impl Worker {
@@ -21,7 +21,6 @@ impl Worker {
             sender,
             receiver: Arc::new(Mutex::new(receiver)),
             workloads: 0,
-            shutdown : false
         };
 
         let res = worker.clone();
@@ -33,25 +32,23 @@ impl Worker {
         return res;
     }
 
-    pub fn send(&self, job: Job) {
-        self.sender.send(job);
+    pub fn send(&self, task: Task) {
+        self.sender.send(task);
     }
 
     pub fn run(&mut self) {
         loop {
-            if self.shutdown {
-                break;
+            let task = self.receiver.lock().unwrap().recv().unwrap();
+
+            match task {
+                Job(job) => {
+                    self.workloads += 1;
+                    job();
+                    self.workloads -= 1;
+                },
+                Shutdown => break
             }
-
-            let job = self.receiver.lock().unwrap().recv().unwrap().0;
-            self.workloads += 1;
-            job();
-            self.workloads -= 1;
         };
-    }
-
-    pub fn shutdown(&mut self) {
-        self.shutdown = true;
     }
 
     pub fn workloads(&self) -> usize {

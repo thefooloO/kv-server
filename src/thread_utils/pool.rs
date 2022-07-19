@@ -1,6 +1,4 @@
-use std::thread;
-use std::thread::sleep;
-use crate::thread_utils::Job;
+use crate::thread_utils::Task;
 use crate::thread_utils::worker::Worker;
 
 pub struct ThreadPool {
@@ -16,21 +14,21 @@ impl ThreadPool {
         }
     }
 
-    pub fn submit(&mut self, job: Job) {
+    pub fn submit(&mut self, task: Task) {
         if self.workers.len() < self.size {
             self.workers.push(Worker::new());
         }
-        self.minWorkLoadsWorker().send(job);
+        self.min_work_loads_worker().send(task);
     }
 
     pub fn shutdown(&self) {
-        for mut worker in self.workers.clone() {
-            worker.shutdown();
+        for worker in &self.workers {
+            worker.send(Task::Shutdown);
         }
     }
 
 
-    fn minWorkLoadsWorker(&self) -> &Worker {
+    fn min_work_loads_worker(&self) -> &Worker {
         let mut res = &self.workers[0];
         for worker in &self.workers {
             if res.workloads() > worker.workloads() {
