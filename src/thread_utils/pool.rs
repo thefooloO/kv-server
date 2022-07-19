@@ -18,7 +18,7 @@ impl ThreadPool {
         if self.workers.len() < self.size {
             self.workers.push(Worker::new());
         }
-        self.min_work_loads_worker().send(task);
+        self.min_workloads_worker().send(task);
     }
 
     pub fn shutdown(&self) {
@@ -28,7 +28,7 @@ impl ThreadPool {
     }
 
 
-    fn min_work_loads_worker(&self) -> &Worker {
+    fn min_workloads_worker(&self) -> &Worker {
         let mut res = &self.workers[0];
         for worker in &self.workers {
             if res.workloads() > worker.workloads() {
